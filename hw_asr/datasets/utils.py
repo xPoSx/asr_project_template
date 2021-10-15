@@ -45,14 +45,14 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
             batch_sampler = None
         elif "batch_sampler" in params:
             batch_sampler = configs.init_obj(params["batch_sampler"], batch_sampler_module,
-                                             data_source=dataset)
+                                             data_source=gl_dataset)
             bs, shuffle = 1, False
         else:
             raise Exception()
 
         # create dataloader
         dataloader = DataLoader(
-            dataset, batch_size=bs, collate_fn=collate_fn,
+            gl_dataset, batch_size=bs, collate_fn=collate_fn,
             shuffle=shuffle, num_workers=num_workers, batch_sampler=batch_sampler)
         dataloaders[split] = dataloader
     return dataloaders
