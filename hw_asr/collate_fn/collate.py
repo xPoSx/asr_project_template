@@ -14,8 +14,8 @@ def collate_fn(dataset_items: List[dict]):
     result_batch = {'text_encoded_length': [], 'spectrogram_length': []}
     for elem in dataset_items:
         # print(elem)
-        result_batch['text_encoded_length'].append(len(elem['text_encoded']))
-        result_batch['spectrogram_length'].append(elem['spectrogram'].shape[2])
+        result_batch['text_encoded_length'].append(elem['text_encoded'].shape[-1])
+        result_batch['spectrogram_length'].append(elem['spectrogram'].shape[-1])
         for k, v in elem.items():
             if k in ['audio', 'spectrogram', 'text_encoded']:
                 # print(v.shape)
@@ -34,6 +34,6 @@ def collate_fn(dataset_items: List[dict]):
                     result_batch[k] = []
                 result_batch[k].append(v)
     result_batch['spectrogram'] = result_batch['spectrogram'].permute(0, 2, 1)
-    result_batch['text_encoded_length'] = torch.Tensor(result_batch['text_encoded_length']).int()
-    result_batch['spectrogram_length'] = torch.Tensor(result_batch['spectrogram_length']).int()
+    result_batch['text_encoded_length'] = torch.tensor(result_batch['text_encoded_length'])
+    result_batch['spectrogram_length'] = torch.tensor(result_batch['spectrogram_length'])
     return result_batch
