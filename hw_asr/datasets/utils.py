@@ -12,7 +12,6 @@ from hw_asr.utils.parse_config import ConfigParser
 
 def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
     dataloaders = {}
-    gl_dataset = None
     for split, params in configs["data"].items():
         num_workers = params.get("num_workers", 1)
 
@@ -33,8 +32,6 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
             dataset = ChainDataset(datasets)
         else:
             dataset = datasets[0]
-        if gl_dataset is None:
-            gl_dataset = [dataset[i] for i in range(20)]
 
         # select batch size or batch sampler
         assert xor("batch_size" in params, "batch_sampler" in params), \
@@ -45,14 +42,14 @@ def get_dataloaders(configs: ConfigParser, text_encoder: BaseTextEncoder):
             batch_sampler = None
         elif "batch_sampler" in params:
             batch_sampler = configs.init_obj(params["batch_sampler"], batch_sampler_module,
-                                             data_source=gl_dataset)
+                                             data_source=dataset)
             bs, shuffle = 1, False
         else:
             raise Exception()
 
         # create dataloader
         dataloader = DataLoader(
-            gl_dataset, batch_size=bs, collate_fn=collate_fn,
+            dataset, batch_size=bs, collate_fn=collate_fn,
             shuffle=shuffle, num_workers=num_workers, batch_sampler=batch_sampler)
         dataloaders[split] = dataloader
     return dataloaders
