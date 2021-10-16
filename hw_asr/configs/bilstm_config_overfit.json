@@ -14,22 +14,22 @@
     "spectrogram": []
   },
   "arch": {
-    "type": "MyLSTM",
+    "type": "MyBiLSTM",
     "args": {
       "n_feats": 128,
-      "fc_hidden": 128,
-      "num_layers": 3
+      "fc_hidden": 512,
+      "num_layers": 2
     }
   },
   "data": {
     "train": {
-      "batch_size": 4,
+      "batch_size": 20,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "train-clean-100",
             "max_audio_length": 20.0,
             "max_text_length": 200,
             "limit": 20
@@ -38,13 +38,13 @@
       ]
     },
     "val": {
-      "batch_size": 4,
+      "batch_size": 20,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "train-clean-100",
             "max_audio_length": 20.0,
             "max_text_length": 200,
             "limit": 20
@@ -54,9 +54,9 @@
     }
   },
   "optimizer": {
-    "type": "AdamW",
+    "type": "SGD",
     "args": {
-      "lr": 4e-3
+      "lr": 2e-3
     }
   },
   "loss": {
@@ -80,23 +80,23 @@
   "lr_scheduler": {
     "type": "OneCycleLR",
     "args": {
-      "steps_per_epoch": 100,
-      "epochs": 50,
+      "steps_per_epoch": 30,
+      "epochs": 100,
       "anneal_strategy": "cos",
-      "max_lr": 1e-2,
-      "pct_start": 0.2
+      "max_lr": 1e-1,
+      "pct_start": 0.1
     }
   },
   "trainer": {
-    "epochs": 50,
+    "epochs": 40,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 100,
+    "early_stop": 20,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 100,
+    "len_epoch": 30,
     "grad_norm_clip": 10
   }
 }
