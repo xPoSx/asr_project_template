@@ -25,17 +25,17 @@ class QuartzBlock(nn.Module):
         super(QuartzBlock, self).__init__()
         if s != 0:
             in_ch = out_ch
-        self.layers = nn.ModuleList([QuartzCell(kernel_size, in_ch, out_ch)])
+        self.layers = [QuartzCell(kernel_size, in_ch, out_ch)]
         self.layers.extend([QuartzCell(kernel_size, out_ch, out_ch) for _ in range(n_cells - 2)])
         self.layers.append(QuartzCell(kernel_size, out_ch, out_ch, activation=False))
+        self.layers = nn.Sequential(*self.layers)
         self.relu = nn.ReLU()
         self.conv = nn.Conv1d(in_ch, out_ch, 1)
         self.bn = nn.BatchNorm1d(out_ch)
 
     def forward(self, x):
         x_skip = self.bn(self.conv(x))
-        for layer in self.layers:
-            x = layer(x)
+        x = self.layers(x)
         return self.relu(x + x_skip)
 
 

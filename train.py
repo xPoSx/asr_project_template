@@ -4,6 +4,7 @@ import warnings
 
 import numpy as np
 import torch
+import torch_optimizer
 
 import hw_asr.loss as module_loss
 import hw_asr.metric as module_metric
@@ -52,7 +53,7 @@ def main(config):
 
     # build optimizer, learning rate scheduler. delete every lines containing lr_scheduler for disabling scheduler
     trainable_params = filter(lambda p: p.requires_grad, model.parameters())
-    optimizer = config.init_obj(config["optimizer"], torch.optim, trainable_params)
+    optimizer = config.init_obj(config["optimizer"], torch_optimizer, trainable_params)
     lr_scheduler = config.init_obj(config["lr_scheduler"], torch.optim.lr_scheduler, optimizer)
 
     trainer = Trainer(

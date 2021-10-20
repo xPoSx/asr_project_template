@@ -22,14 +22,14 @@
   "data": {
     "train": {
       "batch_size": 20,
-      "num_workers": 5,
+      "num_workers": 1,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "train-clean-100",
-            "max_audio_length": 20.0,
-            "max_text_length": 200,
+            "part": "dev-clean",
+            "max_audio_length": 5.0,
+            "max_text_length": 50,
             "limit": 20
           }
         }
@@ -37,14 +37,14 @@
     },
     "val": {
       "batch_size": 20,
-      "num_workers": 5,
+      "num_workers": 1,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "train-clean-100",
-            "max_audio_length": 20.0,
-            "max_text_length": 200,
+            "part": "dev-clean",
+            "max_audio_length": 5.0,
+            "max_text_length": 50,
             "limit": 20
           }
         }
@@ -52,9 +52,11 @@
     }
   },
   "optimizer": {
-    "type": "Adam",
+    "type": "NovoGrad",
     "args": {
-      "lr": 2e-3
+      "lr": 1e-2,
+      "betas": [0.9, 0.5],
+      "weight_decay": 1e-3
     }
   },
   "loss": {
@@ -76,17 +78,13 @@
     }
   ],
   "lr_scheduler": {
-    "type": "OneCycleLR",
+    "type": "CosineAnnealingLR",
     "args": {
-      "steps_per_epoch": 30,
-      "epochs": 100,
-      "anneal_strategy": "cos",
-      "max_lr": 1e-1,
-      "pct_start": 0.1
+      "T_max": 15
     }
   },
   "trainer": {
-    "epochs": 40,
+    "epochs": 15,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
