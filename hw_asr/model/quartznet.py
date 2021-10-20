@@ -51,8 +51,7 @@ class QuartzNet(BaseModel):
             *[QuartzBlock(5, 75, 512, 512, i) for i in range(3)],
             QuartzCell(87, 512, 512),
             QuartzCell(1, 512, 1024),
-            nn.Conv1d(1024, n_class, 1, dilation=2),
-            nn.LogSoftmax(dim=1),
+            nn.Conv1d(1024, n_class, 1, dilation=2)
         )
 
     def forward(self, spectrogram, *args, **kwargs):
