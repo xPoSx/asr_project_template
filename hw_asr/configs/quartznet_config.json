@@ -54,7 +54,7 @@
   "optimizer": {
     "type": "Adam",
     "args": {
-      "lr": 1e-1
+      "lr": 2e-3
     }
   },
   "loss": {
@@ -76,10 +76,13 @@
     }
   ],
   "lr_scheduler": {
-    "type": "CosineAnnealingLR",
+    "type": "OneCycleLR",
     "args": {
-      "T_max": 600,
-      "eta_min": 1e-4
+      "steps_per_epoch": 30,
+      "epochs": 100,
+      "anneal_strategy": "cos",
+      "max_lr": 1e-1,
+      "pct_start": 0.1
     }
   },
   "trainer": {
