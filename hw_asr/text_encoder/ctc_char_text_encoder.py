@@ -36,6 +36,4 @@ class CTCCharTextEncoder(CharTextEncoder):
         char_length, voc_size = probs.shape
         assert voc_size == len(self.ind2char)
         hypos = []
-        # TODO: your code here
-        raise NotImplementedError
         return sorted(hypos, key=lambda x: x[1], reverse=True)
