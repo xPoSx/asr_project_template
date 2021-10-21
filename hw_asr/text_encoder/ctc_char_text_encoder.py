@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 import torch
-import nemo.collections.asr as nemo_asr
+import pyctcdecoder
 
 from hw_asr.text_encoder.char_text_encoder import CharTextEncoder
 
@@ -17,13 +17,9 @@ class CTCCharTextEncoder(CharTextEncoder):
         for text in alphabet:
             self.ind2char[max(self.ind2char.keys()) + 1] = text
         self.char2ind = {v: k for k, v in self.ind2char.items()}
-        self.beam_search = nemo_asr.modules.BeamSearchDecoderWithLM(
-            vocab=alphabet,
-            beam_width=100,
-            alpha=2, beta=1.5,
-            lm_path='lowercase_3-gram.pruned.1e-7.arpa',
-            num_cpus=max(os.cpu_count(), 1),
-            input_tensor=False
+        self.beam_search = pyctcdecoder.build_ctcdecoder(
+            alphabet,
+            'lowercase_3-gram.pruned.1e-7.arpa'
         )
 
     def ctc_decode(self, inds: List[int]) -> str:

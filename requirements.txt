@@ -1,6 +1,6 @@
 torch
 torchvision
-nemo_toolkit[all]
+pyctcdecode
 numpy
 tqdm
 tensorboard
