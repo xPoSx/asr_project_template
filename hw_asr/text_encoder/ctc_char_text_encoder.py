@@ -4,6 +4,7 @@ import torch
 import pyctcdecoder
 
 from hw_asr.text_encoder.char_text_encoder import CharTextEncoder
+from hw_asr.utils.util import init_lm
 
 
 class CTCCharTextEncoder(CharTextEncoder):
@@ -11,6 +12,7 @@ class CTCCharTextEncoder(CharTextEncoder):
 
     def __init__(self, alphabet: List[str]):
         super().__init__(alphabet)
+        init_lm()
         self.ind2char = {
             0: self.EMPTY_TOK
         }
@@ -18,7 +20,7 @@ class CTCCharTextEncoder(CharTextEncoder):
             self.ind2char[max(self.ind2char.keys()) + 1] = text
         self.char2ind = {v: k for k, v in self.ind2char.items()}
         self.beam_search = pyctcdecoder.build_ctcdecoder(
-            alphabet,
+            [''] + alphabet,
             'lowercase_3-gram.pruned.1e-7.arpa'
         )
 

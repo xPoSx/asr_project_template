@@ -5,6 +5,8 @@ from pathlib import Path
 
 import pandas as pd
 import torch
+import gzip
+import os, shutil, wget
 
 ROOT_PATH = Path(__file__).absolute().resolve().parent.parent.parent
 
@@ -32,6 +34,41 @@ def inf_loop(data_loader):
     for loader in repeat(data_loader):
         yield from loader
 
+def init_lm():
+    lm_gzip_path = '3-gram.pruned.1e-7.arpa.gz'
+    if not os.path.exists(lm_gzip_path):
+        print('Downloading pruned 3-gram model.')
+        lm_url = 'http://www.openslr.org/resources/11/3-gram.pruned.1e-7.arpa.gz'
+        lm_gzip_path = wget.download(lm_url)
+        print('Downloaded the 3-gram language model.')
+    else:
+        print('Pruned .arpa.gz already exists.')
+
+    lm_vocab_path = 'librispeech-vocab.txt'
+    if not os.path.exists(lm_vocab_path):
+        print('Downloading librspeech vocabulary')
+        vocab_url = 'https://www.openslr.org/resources/11/librispeech-vocab.txt'
+        lm_vocab_path = wget.download(vocab_url)
+        print('Downloaded librispeech vocabulary')
+    else:
+        print('Librispeech vocabulary already exists')
+
+    uppercase_lm_path = '3-gram.pruned.1e-7.arpa'
+    if not os.path.exists(uppercase_lm_path):
+        with gzip.open(lm_gzip_path, 'rb') as f_zipped:
+            with open(uppercase_lm_path, 'wb') as f_unzipped:
+                shutil.copyfileobj(f_zipped, f_unzipped)
+        print('Unzipped the 3-gram language model.')
+    else:
+        print('Unzipped .arpa already exists.')
+
+    lm_path = 'lowercase_3-gram.pruned.1e-7.arpa'
+    if not os.path.exists(lm_path):
+        with open(uppercase_lm_path, 'r') as f_upper:
+            with open(lm_path, 'w') as f_lower:
+                for line in f_upper:
+                    f_lower.write(line.lower())
+    print('Converted language model file to lowercase.')
 
 def prepare_device(n_gpu_use):
     """
