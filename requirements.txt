@@ -1,9 +1,12 @@
 torch
 torchvision
+nemo_toolkit[all]
 numpy
 tqdm
 tensorboard
 matplotlib
+wandb
+jiwer
 
 
 pandas
@@ -13,5 +16,4 @@ datasets
 torch_audiomentations
 editdistance
 torch_optimizer
-nemo_toolkit['all']
 wget
