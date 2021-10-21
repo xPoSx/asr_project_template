@@ -1,8 +1,8 @@
-from torch.utils.data import Sampler
+from torch.utils.data import BatchSampler
 import torch
 
 
-class GroupLengthBatchSampler(Sampler):
+class GroupLengthBatchSampler(BatchSampler):
     def __init__(self, data_source, batch_size, batches_per_group=20):
         super().__init__(data_source)
         self.data_source = data_source
@@ -17,13 +17,22 @@ class GroupLengthBatchSampler(Sampler):
             self.elem_to_group[group_ids] = i
 
     def __iter__(self):
+        num_yielded = 0
         inds = torch.arange(len(self.data_source))
-        for i in range(self.n_groups + 1):
-            cur_group = inds[self.elem_to_group == i]
-            # print(len(cur_group))
-            for k in range(len(cur_group) // self.batch_size):
-                batch = cur_group[k * self.batch_size:(k + 1) * self.batch_size].tolist()
-                yield batch
+        while num_yielded < len(self.data_source):
+            group_id = torch.randint(0, self.n_groups + 1)
+            cur_group = inds[self.elem_to_group == group_id]
+            batch_ids = torch.randperm(len(cur_group))[:self.batch_size]
+            batch = cur_group[batch_ids]
+            num_yielded += len(batch)
+            yield batch
+
+        # for i in range(self.n_groups + 1):
+        #     cur_group = inds[self.elem_to_group == i]
+        #     # print(len(cur_group))
+        #     for k in range(len(cur_group) // self.batch_size):
+        #         batch = cur_group[k * self.batch_size:(k + 1) * self.batch_size].tolist()
+        #         yield batch
 
     def __len__(self):
-        return len(self.data_source)
+        return (len(self.data_source) + self.batch_size - 1) // self.batch_size

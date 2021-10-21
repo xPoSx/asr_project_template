@@ -1,7 +1,7 @@
 from typing import List, Tuple
 
 import torch
-import pyctcdecoder
+from ctcdecode import CTCBeamDecoder
 
 from hw_asr.text_encoder.char_text_encoder import CharTextEncoder
 from hw_asr.utils.util import init_lm
@@ -19,9 +19,13 @@ class CTCCharTextEncoder(CharTextEncoder):
         for text in alphabet:
             self.ind2char[max(self.ind2char.keys()) + 1] = text
         self.char2ind = {v: k for k, v in self.ind2char.items()}
-        self.beam_search = pyctcdecoder.build_ctcdecoder(
+
+        self.beam_search = CTCBeamDecoder(
             [''] + alphabet,
-            'lowercase_3-gram.pruned.1e-7.arpa'
+            model_path='lowercase_3-gram.pruned.1e-7.arpa',
+            alpha=0.3,
+            beam_width=100,
+            log_probs_input=True
         )
 
     def ctc_decode(self, inds: List[int]) -> str:
@@ -34,15 +38,13 @@ class CTCCharTextEncoder(CharTextEncoder):
                 res += self.ind2char[ind]
         return res
 
-    def ctc_beam_search(self, probs: torch.tensor, probs_length,
-                        beam_size: int = 100) -> List[Tuple[str, float]]:
+    def ctc_beam_search(self, log_probs) -> List[Tuple[str, float]]:
         """
         Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
         """
-        assert len(probs.shape) == 2
-        char_length, voc_size = probs.shape
-        assert voc_size == len(self.ind2char)
-        hypos = []
-        print(self.beam_search.forward(log_probs = np.expand_dims(probs, axis=0), log_probs_length=probs_length))
-        raise RuntimeError('kek')
-        return sorted(hypos, key=lambda x: x[1], reverse=True)
+        # assert len(probs.shape) == 2
+        # char_length, voc_size = probs.shape
+        # assert voc_size == len(self.ind2char)
+        # hypos = []
+        res = self.beam_search.decode(log_probs)
+        return res

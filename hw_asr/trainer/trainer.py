@@ -199,6 +199,7 @@ class Trainer(BaseTrainer):
             log_probs,
             log_probs_length,
             examples_to_log=5,
+            part=None,
             *args,
             **kwargs,
     ):
@@ -212,11 +213,23 @@ class Trainer(BaseTrainer):
         ]
         argmax_texts_raw = [self.text_encoder.decode(inds) for inds in argmax_inds]
         argmax_texts = [self.text_encoder.ctc_decode(inds) for inds in argmax_inds]
-        tuples = list(zip(argmax_texts, text, argmax_texts_raw))
+        if part == 'val':
+            beam_texts = self.text_encoder.ctc_beam_search(log_probs)
+            tuples = list(zip(argmax_texts, text, argmax_texts_raw, beam_texts))
+            to_log_bs = []
+        else:
+            tuples = list(zip(argmax_texts, text, argmax_texts_raw, text))
         shuffle(tuples)
         to_log_pred = []
         to_log_pred_raw = []
-        for pred, target, raw_pred in tuples[:examples_to_log]:
+        for pred, target, raw_pred, beam_texts in tuples[:examples_to_log]:
+            if part == 'val':
+                wer_beam = calc_wer(target, beam_texts) * 100
+                cer_beam = calc_cer(target, beam_texts) * 100
+                to_log_bs.append(
+                    f"true: '{target}' | pred: '{beam_texts}' "
+                    f"| wer: {wer_beam:.2f} | cer: {cer_beam:.2f}"
+                )
             wer = calc_wer(target, pred) * 100
             cer = calc_cer(target, pred) * 100
             to_log_pred.append(
@@ -225,6 +238,8 @@ class Trainer(BaseTrainer):
             )
             to_log_pred_raw.append(f"true: '{target}' | pred: '{raw_pred}'\n")
         self.writer.add_text(f"predictions", "< < < < > > > >".join(to_log_pred))
+        if part == 'val':
+            self.writer.add_text(f"predictions_beeam", "< < < < > > > >".join(to_log_bs))
         self.writer.add_text(
             f"predictions_raw", "< < < < > > > >".join(to_log_pred_raw)
         )

@@ -43,15 +43,15 @@ def init_lm():
         print('Downloaded the 3-gram language model.')
     else:
         print('Pruned .arpa.gz already exists.')
-
-    lm_vocab_path = 'librispeech-vocab.txt'
-    if not os.path.exists(lm_vocab_path):
-        print('Downloading librspeech vocabulary')
-        vocab_url = 'https://www.openslr.org/resources/11/librispeech-vocab.txt'
-        lm_vocab_path = wget.download(vocab_url)
-        print('Downloaded librispeech vocabulary')
-    else:
-        print('Librispeech vocabulary already exists')
+    #
+    # lm_vocab_path = 'librispeech-vocab.txt'
+    # if not os.path.exists(lm_vocab_path):
+    #     print('Downloading librspeech vocabulary')
+    #     vocab_url = 'https://www.openslr.org/resources/11/librispeech-vocab.txt'
+    #     lm_vocab_path = wget.download(vocab_url)
+    #     print('Downloaded librispeech vocabulary')
+    # else:
+    #     print('Librispeech vocabulary already exists')
 
     uppercase_lm_path = '3-gram.pruned.1e-7.arpa'
     if not os.path.exists(uppercase_lm_path):
