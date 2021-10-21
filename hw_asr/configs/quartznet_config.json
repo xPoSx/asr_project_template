@@ -41,16 +41,15 @@
       ]
     },
     "val": {
-      "batch_size": 64,
+      "batch_size": 32,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
             "part": "dev-clean",
-            "max_audio_length": 5.0,
-            "max_text_length": 50,
-            "limit": 64
+            "max_audio_length": 20.0,
+            "max_text_length": 200
           }
         }
       ]
@@ -85,11 +84,11 @@
   "lr_scheduler": {
     "type": "CosineAnnealingLR",
     "args": {
-      "T_max": 600
+      "T_max": 10
     }
   },
   "trainer": {
-    "epochs": 600,
+    "epochs": 10,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
@@ -97,7 +96,7 @@
     "early_stop": 300,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 1,
+    "len_epoch": 100,
     "grad_norm_clip": 10
   }
 }
