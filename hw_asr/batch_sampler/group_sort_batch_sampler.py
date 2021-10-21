@@ -17,18 +17,15 @@ class GroupLengthBatchSampler(Sampler):
             self.elem_to_group[group_ids] = i
 
     def __iter__(self):
+        # print('kekekekekekekekeek', self.batch_size * self.batches_per_group)
         sampled = 0
         inds = torch.arange(len(self.data_source))
-        while sampled < len(self.data_source):
-            group_id = int(torch.randint(0, self.n_groups, (1,))[0])
-            cur_group = inds[self.elem_to_group == group_id]
-            batch_inds = torch.randperm(len(cur_group))[:self.batch_size]
-            batch = cur_group[batch_inds].tolist()
-            sampled += self.batch_size
-            yield batch
-
-
-
+        for i in range(self.n_groups + 1):
+            cur_group = inds[self.elem_to_group == i]
+            # print(len(cur_group))
+            for k in range(len(cur_group) // self.batch_size):
+                batch = cur_group[k * self.batch_size:(k + 1) * self.batch_size].tolist()
+                yield batch
 
     def __len__(self):
         return len(self.data_source)
