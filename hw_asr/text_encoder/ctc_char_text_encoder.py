@@ -19,11 +19,11 @@ class CTCCharTextEncoder(CharTextEncoder):
         for text in alphabet:
             self.ind2char[max(self.ind2char.keys()) + 1] = text
         self.char2ind = {v: k for k, v in self.ind2char.items()}
-
         self.beam_search = CTCBeamDecoder(
-            [''] + alphabet,
+            ['^'] + alphabet,
             model_path='lowercase_3-gram.pruned.1e-7.arpa',
-            alpha=0.3,
+            alpha=0.8,
+            beta=1.0,
             beam_width=100,
             log_probs_input=True
         )
@@ -46,5 +46,6 @@ class CTCCharTextEncoder(CharTextEncoder):
         # char_length, voc_size = probs.shape
         # assert voc_size == len(self.ind2char)
         # hypos = []
-        res = self.beam_search.decode(log_probs)
-        return res
+        beam_results, beam_scores, timesteps, out_lens = self.beam_search.decode(log_probs)
+        print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
+        return beam_results
