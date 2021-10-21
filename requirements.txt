@@ -6,6 +6,7 @@ tqdm
 tensorboard
 matplotlib
 wandb
+https://github.com/kpu/kenlm/archive/master.zip
 jiwer
 
 
