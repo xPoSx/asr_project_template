@@ -53,29 +53,17 @@ class BaseDataset(Dataset):
         index = self._sort_index(index)
         self._index = index
 
-
-    def normalize_text(self, text: str):
-        text = text.lower()
-        for elem in string.punctuation:
-            text = text.replace(elem, ' ')
-        text = re.sub("\s\s+", " ", text)
-        if text[-1] == ' ':
-            text = text[:-1]
-        return text
-
-
     def __getitem__(self, ind):
         data_dict = self._index[ind]
         audio_path = data_dict["path"]
         audio_wave = self.load_audio(audio_path)
         audio_wave, audio_spec = self.process_wave(audio_wave)
-        normalized_text = self.normalize_text(data_dict['text'])
         return {
             "audio": audio_wave,
             "spectrogram": audio_spec,
             "duration": data_dict["audio_len"],
-            "text": normalized_text,
-            "text_encoded": self.text_encoder.encode(normalized_text),
+            "text": self.text_encoder.normalize_text(data_dict['text']),
+            "text_encoded": self.text_encoder.encode(data_dict['text']),
             "audio_path": audio_path,
         }
 
