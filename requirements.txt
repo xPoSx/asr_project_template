@@ -12,3 +12,6 @@ torchaudio~=0.9.1
 datasets
 torch_audiomentations
 editdistance
+torch_optimizer
+nemo_toolkit['all']
+wget

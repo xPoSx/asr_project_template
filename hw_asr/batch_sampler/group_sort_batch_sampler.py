@@ -17,8 +17,6 @@ class GroupLengthBatchSampler(Sampler):
             self.elem_to_group[group_ids] = i
 
     def __iter__(self):
-        # print('kekekekekekekekeek', self.batch_size * self.batches_per_group)
-        sampled = 0
         inds = torch.arange(len(self.data_source))
         for i in range(self.n_groups + 1):
             cur_group = inds[self.elem_to_group == i]
