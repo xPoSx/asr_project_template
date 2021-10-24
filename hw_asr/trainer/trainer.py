@@ -148,9 +148,9 @@ class Trainer(BaseTrainer):
             if self.lr_scheduler is not None:
                 self.lr_scheduler.step()
 
-        metrics.update("loss", batch["loss"].item())
+        metrics.update("loss", batch["loss"].item(), is_train)
         for met in self.metrics:
-            metrics.update(met.name, met(**batch))
+            metrics.update(met.name, met(**batch), is_train)
         return batch
 
     def _valid_epoch(self, epoch):

@@ -14,49 +14,47 @@
     "spectrogram": []
   },
   "arch": {
-    "type": "QuartzNet",
+    "type": "DeepSpeech",
     "args": {
       "n_feats": 128
     }
   },
   "data": {
     "train": {
-      "batch_size": 20,
+      "batch_size": 2,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "train-clean-100",
             "max_audio_length": 20.0,
             "max_text_length": 200,
-            "limit": 20
+            "limit": 2
           }
         }
       ]
     },
     "val": {
-      "batch_size": 20,
+      "batch_size": 2,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "train-clean-100",
             "max_audio_length": 20.0,
             "max_text_length": 200,
-            "limit": 20
+            "limit": 2
           }
         }
       ]
     }
   },
   "optimizer": {
-    "type": "NovoGrad",
+    "type": "SGD",
     "args": {
-      "lr": 1e-2,
-      "betas": [0.9, 0.5],
-      "weight_decay": 1e-3
+      "lr": 2e-3
     }
   },
   "loss": {
@@ -78,18 +76,22 @@
     }
   ],
   "lr_scheduler": {
-    "type": "CosineAnnealingLR",
+    "type": "OneCycleLR",
     "args": {
-      "T_max": 600
+      "steps_per_epoch": 30,
+      "epochs": 40,
+      "anneal_strategy": "cos",
+      "max_lr": 1e-1,
+      "pct_start": 0.1
     }
   },
   "trainer": {
-    "epochs": 20,
+    "epochs": 40,
     "save_dir": "saved/",
     "save_period": 5,
     "verbosity": 2,
     "monitor": "min val_loss",
-    "early_stop": 300,
+    "early_stop": 20,
     "visualize": "wandb",
     "wandb_project": "asr_project",
     "len_epoch": 30,

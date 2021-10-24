@@ -42,10 +42,10 @@ class CTCCharTextEncoder(CharTextEncoder):
         """
         Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
         """
-        # assert len(probs.shape) == 2
-        # char_length, voc_size = probs.shape
-        # assert voc_size == len(self.ind2char)
-        # hypos = []
+        assert len(log_probs.shape) == 2
+        char_length, voc_size = log_probs.shape
+        assert voc_size == len(self.ind2char)
+
         beam_results, beam_scores, timesteps, out_lens = self.beam_search.decode(log_probs)
         print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
         return beam_results
