@@ -22,7 +22,7 @@ class CTCCharTextEncoder(CharTextEncoder):
         self.beam_search = CTCBeamDecoder(
             ['^'] + alphabet,
             model_path='lowercase_3-gram.pruned.1e-7.arpa',
-            alpha=0.8,
+            alpha=0.4,
             beta=1.0,
             beam_width=100,
             log_probs_input=True
@@ -42,10 +42,12 @@ class CTCCharTextEncoder(CharTextEncoder):
         """
         Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
         """
-        assert len(log_probs.shape) == 2
-        char_length, voc_size = log_probs.shape
-        assert voc_size == len(self.ind2char)
+        # assert len(log_probs.shape) == 2
+        # char_length, voc_size = log_probs.shape
+        # assert voc_size == len(self.ind2char)
 
         beam_results, beam_scores, timesteps, out_lens = self.beam_search.decode(log_probs)
-        print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
-        return beam_results
+        # print(beam_results.size())
+        res = ''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]])
+        # print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
+        return res

@@ -1,5 +1,5 @@
 {
-  "name": "lstm_config",
+  "name": "quartznet_config",
   "n_gpu": 1,
   "preprocessing": {
     "sr": 16000,
@@ -10,8 +10,38 @@
     }
   },
   "augmentations": {
-    "wave": [],
-    "spectrogram": []
+    "wave": [
+      {
+        "type": "Gain",
+        "args": {}
+      },
+      {
+        "type": "Noise",
+        "args": {
+          "sample_rate": 16000
+        }
+      },
+      {
+        "type": "Pitch",
+        "args": {
+          "sample_rate" : 16000
+        }
+      }
+    ],
+    "spectrogram": [
+      {
+        "type": "FrequencyMasking",
+        "args": {
+          "freq_mask_param": 20
+        }
+      },
+      {
+        "type": "TimeMasking",
+        "args": {
+          "time_mask_param": 40
+        }
+      }
+    ]
   },
   "arch": {
     "type": "QuartzNet",
@@ -21,31 +51,33 @@
   },
   "data": {
     "train": {
-      "batch_size": 20,
+      "batch_sampler": {
+          "type": "GroupLengthBatchSampler",
+          "args": {
+              "batch_size": 32,
+              "batches_per_group": 20
+          }
+      },
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
+            "part": "train-clean-100",
             "max_audio_length": 20.0,
-            "max_text_length": 200,
-            "limit": 20
+            "max_text_length": 300
           }
         }
       ]
     },
     "val": {
-      "batch_size": 20,
+      "batch_size": 32,
       "num_workers": 5,
       "datasets": [
         {
           "type": "LibrispeechDataset",
           "args": {
-            "part": "dev-clean",
-            "max_audio_length": 20.0,
-            "max_text_length": 200,
-            "limit": 20
+            "part": "test-clean"
           }
         }
       ]
@@ -71,16 +103,28 @@
       }
     },
     {
+      "type": "BeamWERMetric",
+      "args": {
+        "name": "Beam WER"
+      }
+    },
+    {
       "type": "ArgmaxCERMetric",
       "args": {
         "name": "CER (argmax)"
+      }
+    },
+    {
+      "type": "BeamCERMetric",
+      "args": {
+        "name": "Beam CER"
       }
     }
   ],
   "lr_scheduler": {
     "type": "CosineAnnealingLR",
     "args": {
-      "T_max": 600
+      "T_max": 20000
     }
   },
   "trainer": {
@@ -92,7 +136,7 @@
     "early_stop": 300,
     "visualize": "wandb",
     "wandb_project": "asr_project",
-    "len_epoch": 30,
+    "len_epoch": 1000,
     "grad_norm_clip": 10
   }
 }

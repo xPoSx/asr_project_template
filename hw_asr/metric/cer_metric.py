@@ -23,9 +23,32 @@ class ArgmaxCERMetric(BaseMetric):
         for log_prob_vec, target_text in zip(predictions, text):
             if hasattr(self.text_encoder, "ctc_decode"):
                 pred_text = self.text_encoder.ctc_decode(log_prob_vec)
-                print(pred_text, target_text, sep='\n')
             else:
                 pred_text = self.text_encoder.decode(log_prob_vec)
             cers.append(calc_cer(target_text, pred_text))
-            print(cers[-1])
         return sum(cers) / len(cers)
+
+
+class BeamCERMetric(BaseMetric):
+    def __init__(self, text_encoder: BaseTextEncoder, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.text_encoder = text_encoder
+
+    def __call__(self, log_probs: Tensor, text: List[str], *args, **kwargs):
+        cers = []
+        preds = []
+        for i in range(log_probs.size(0)):
+            tmp_probs = log_probs[i][:int(kwargs['log_probs_length'][i])]
+            tmp_probs = tmp_probs.reshape(1, tmp_probs.size(0), tmp_probs.size(1))
+            preds.append(tmp_probs)
+
+        for log_prob_vec, target_text in zip(preds, text):
+            if hasattr(self.text_encoder, "ctc_beam_search"):
+                pred_text = self.text_encoder.ctc_beam_search(log_prob_vec)
+            else:
+                pred_text = self.text_encoder.decode(log_prob_vec)
+            cers.append(calc_cer(target_text, pred_text))
+        return sum(cers) / len(cers)
+
+
+

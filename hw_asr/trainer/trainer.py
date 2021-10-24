@@ -150,6 +150,8 @@ class Trainer(BaseTrainer):
 
         metrics.update("loss", batch["loss"].item(), is_train)
         for met in self.metrics:
+            if is_train and 'Beam' in met.name:
+                continue
             metrics.update(met.name, met(**batch), is_train)
         return batch
 
@@ -243,9 +245,21 @@ class Trainer(BaseTrainer):
         )
 
         if part == 'val':
-            print(text[0])
-            print(argmax_texts[0])
-            beam_texts = self.text_encoder.ctc_beam_search(log_probs)
+            to_log_beam_pred = []
+            beam_texts = []
+            for i in range(log_probs.size(0)):
+                tmp_probs = log_probs[i][:int(log_probs_length[i])]
+                tmp_probs = tmp_probs.reshape(1, tmp_probs.size(0), tmp_probs.size(1))
+                beam_texts.append(self.text_encoder.ctc_beam_search(tmp_probs))
+
+            for pred, target in list(zip(beam_texts, text)):
+                wer = calc_wer(target, pred) * 100
+                cer = calc_cer(target, pred) * 100
+                to_log_beam_pred.append(
+                    f"true: '{target}' | pred: '{pred}' "
+                    f"| beam wer: {wer:.2f} | beam cer: {cer:.2f}"
+                )
+            self.writer.add_text(f"beam predictions", "< < < < > > > >".join(to_log_beam_pred))
 
     def _log_spectrogram(self, spectrogram_batch):
         spectrogram = random.choice(spectrogram_batch)
