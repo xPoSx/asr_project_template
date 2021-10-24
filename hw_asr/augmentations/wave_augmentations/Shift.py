@@ -1,5 +1,6 @@
 import torch_audiomentations
 from torch import Tensor
+import random
 
 from hw_asr.augmentations.base import AugmentationBase
 
@@ -9,5 +10,8 @@ class Shift(AugmentationBase):
         self._aug = torch_audiomentations.Shift(*args, **kwargs)
 
     def __call__(self, data: Tensor):
-        x = data.unsqueeze(1)
-        return self._aug(x).squeeze(1)
+        if random.random() < 0.3:
+            x = data.unsqueeze(1)
+            return self._aug(x).squeeze(1)
+        else:
+            return data
