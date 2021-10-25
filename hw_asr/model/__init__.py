@@ -6,5 +6,6 @@ from hw_asr.model.deepspeech import DeepSpeech
 __all__ = [
     "BaselineModel",
     "MyBiLSTM",
-    "QuartzNet"
+    "QuartzNet",
+    "DeepSpeech"
 ]
