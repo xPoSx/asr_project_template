@@ -1,0 +1,116 @@
+{
+  "name": "deepspeech_continue_config",
+  "n_gpu": 1,
+  "preprocessing": {
+    "sr": 16000,
+    "spectrogram": {
+      "type": "MelSpectrogram",
+      "args": {
+      }
+    }
+  },
+  "augmentations": {
+    "wave": [],
+    "spectrogram": []
+  },
+  "arch": {
+    "type": "DeepSpeech",
+    "args": {
+      "n_feats": 128
+    }
+  },
+  "data": {
+    "train": {
+      "batch_size": 64,
+      "num_workers": 0,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "train-clean-100",
+            "max_audio_length": 30.0,
+            "max_text_length": 300
+          }
+        },
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "train-clean-360",
+            "max_audio_length": 30.0,
+            "max_text_length": 300
+          }
+        }
+      ]
+    },
+    "val": {
+      "batch_size": 32,
+      "num_workers": 0,
+      "datasets": [
+        {
+          "type": "LibrispeechDataset",
+          "args": {
+            "part": "test-clean"
+          }
+        }
+      ]
+    }
+  },
+  "optimizer": {
+    "type": "AdamW",
+    "args": {
+      "lr": 3e-6
+    }
+  },
+  "loss": {
+    "type": "CTCLoss",
+    "args": {}
+  },
+  "metrics": [
+    {
+      "type": "ArgmaxWERMetric",
+      "args": {
+        "name": "WER (argmax)"
+      }
+    },
+    {
+      "type": "BeamWERMetric",
+      "args": {
+        "name": "Beam WER"
+      }
+    },
+    {
+      "type": "ArgmaxCERMetric",
+      "args": {
+        "name": "CER (argmax)"
+      }
+    },
+    {
+      "type": "BeamCERMetric",
+      "args": {
+        "name": "Beam CER"
+      }
+    }
+  ],
+  "lr_scheduler": {
+    "type": "OneCycleLR",
+    "args": {
+      "steps_per_epoch": 500,
+      "epochs": 6,
+      "anneal_strategy": "cos",
+      "max_lr": 1e-5,
+      "pct_start": 0.1
+    }
+  },
+  "trainer": {
+    "epochs": 21,
+    "save_dir": "saved/",
+    "save_period": 5,
+    "verbosity": 2,
+    "monitor": "min val_loss",
+    "early_stop": 20,
+    "visualize": "wandb",
+    "wandb_project": "asr_project",
+    "len_epoch": 1,
+    "grad_norm_clip": 10
+  }
+}
