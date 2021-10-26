@@ -51,3 +51,19 @@ class CTCCharTextEncoder(CharTextEncoder):
         res = ''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]])
         # print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
         return res
+
+    def ctc_beam_search_test(self, log_probs) -> List[Tuple[str, float]]:
+        """
+        Performs beam search and returns a list of pairs (hypothesis, hypothesis probability).
+        """
+        # assert len(log_probs.shape) == 2
+        # char_length, voc_size = log_probs.shape
+        # assert voc_size == len(self.ind2char)
+
+        beam_results, beam_scores, timesteps, out_lens = self.beam_search.decode(log_probs)
+        # print(beam_results.size())
+        res = []
+        for j in range(100):
+            res.append(''.join([self.ind2char[int(i)] for i in beam_results[0][j][:out_lens[0][j]]]))
+        # print(''.join([self.ind2char[int(i)] for i in beam_results[0][0][:out_lens[0][0]]]))
+        return res
